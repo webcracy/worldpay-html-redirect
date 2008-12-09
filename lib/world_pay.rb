@@ -1,67 +1,27 @@
 module WorldPay
   
-  # post new payment to worldpay server from within controller
-  
+  # set the submission uri to sandbox for development and live for production
   def self.uri
-    WorldPay::Post.uri
+    WorldPay.in_production? ? "https://select.worldpay.com/wcc/purchase/" : "https://select-test.worldpay.com/wcc/purchase/"
   end
-  
-  class Post
-    # class to submit form from within controller using net/http?
-    
-    def initialize(installation_id, cart_id, amount, options = {})
-      @params = {
-        :instId => "#{installation_id}",
-        :cartId => "#{cart_id}",
-        :amount => "#{amount}",
-        :currency => "GBP",
-        :desc => "Purchase"
-      }.merge(options)
-      
-      @params.merge!({ :testMode => 100 }) if WorldPay::Post.test?
-    end
-    
-    def params
-      @params
-    end
-    
-    def headers
-      {
-        'Referer' => 'http://www.fittedbootstore.com/orders/review',
-        'User-Agent' => 'Rails 2.2.2'
-      }
-    end
-    
-    def send
-      url = URI.parse(WorldPay::Post.uri)
-      request = Net::HTTP::Post.new(url.path, headers)
-      request.set_form_data(params)
-      http = Net::HTTP.new(url.host, url.port)
-      http.use_ssl = true
-      response = http.start { |http| http.request(request) }
-      # ActiveRecord::Base.logger.debug "** RESPONSE: #{response['Set-Cookie']}"
-    end
-    
-    # set the submission uri to sandbox for development and live for production
-    def self.uri
-      WorldPay::Post.in_production? ? "https://select.worldpay.com/wcc/purchase/" : "https://select-test.worldpay.com/wcc/purchase/"
-    end
 
-    def self.test?
-      not WorldPay::Post.in_production?
-    end
-    
-    def self.in_production?
-      Rails.env == 'production'
-    end
-    
+  def self.test?
+    not WorldPay.in_production?
   end
   
+  def self.in_production?
+    Rails.env == 'production'
+  end
+ 
   # process payment response notifications
   
   class Response
     
     def initialize(params, raw_post)
+      # Thanks to Peter Cooper http://www.petercooper.co.uk/
+      # http://snippets.dzone.com/posts/show/2191
+      # for this line to merge the parameters from WorldPay
+      # IS THERE A PRETTIER WAY OF DOING THIS?
       @params = params.merge!(Hash[*raw_post.scan(/(\w+)\=(.+?)&/).flatten])
     end
     
@@ -75,7 +35,7 @@ module WorldPay
       transaction_result == 'Y'
     end
     
-    def total_amounts_match?(order_total)
+    def amounts_match?(order_total)
       order_total == total
     end
     
@@ -129,7 +89,7 @@ module WorldPay
         :desc => "Purchase"
       }.merge(options)
       
-      params.merge!({ :testMode => 100 }) if WorldPay::Post.test?
+      params.merge!({ :testMode => 100 }) if WorldPay.test?
       
       output = []
       
@@ -137,7 +97,7 @@ module WorldPay
       params.each_pair do |name, value|
         output << hidden_field_tag(name, value)
       end
-      output << submit_tag('Proceed to Payment Page', 'class' => 'large')
+      output << submit_tag('Proceed to Payment Page')
       output << '</form>'
       
       output.join("\n")
