@@ -21,7 +21,7 @@ def new
 	
 	# set options for submitting to WorldPay
 	@options = {
-	  :desc => "Fitted Boot Store Purchase", 					 # default is purchase
+	  :desc => "Store Purchase", 					 # default is purchase
 	  :currency => "USD", 										 # default is GBP
 	  :name => "#{ @order.name }",								 # person's name
 	  :address => "#{ @order.address.describe_for_worldpay }",	 # billing address without zip/postcode
