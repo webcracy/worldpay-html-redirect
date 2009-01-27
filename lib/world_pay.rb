@@ -80,7 +80,8 @@ module WorldPay
     end
     
     #generate html output for 
-    def world_pay_form(installation_id, cart_id, amount, options = {})
+    def world_pay_form_tag(installation_id, cart_id, amount, options = {}, &block)
+      
       params = {
         :instId => "#{installation_id}",
         :cartId => "#{cart_id}",
@@ -91,16 +92,17 @@ module WorldPay
       
       params.merge!({ :testMode => 100 }) if WorldPay.test?
       
-      output = []
-      
-      output << form_tag(uri)
-      params.each_pair do |name, value|
-        output << hidden_field_tag(name, value)
+      output = form_tag(uri) do
+        params.each_pair do |name, value|
+          hidden_field_tag(name, value)
+        end
+        capture(&block)
       end
-      output << submit_tag('Proceed to Payment Page')
-      output << '</form>'
       
-      output.join("\n")
+      logger.debug "** #{output}"
+      
+      concat output, block.binding
+      
     end  
   end
   

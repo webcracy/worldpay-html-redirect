@@ -1,4 +1,4 @@
-Worldpay HTTP Redirect Rails Plugin
+Worldpay HTML Redirect Rails Plugin
 ===================================
 
 Copyright (c) 2008 Paul Springett [http://paulspringett.name], released under the MIT license
@@ -35,7 +35,9 @@ end
 
 # in app/views/order/new.html.erb
 
-<%= world_pay_form(123456, @order.id, @order.total, @options) %>
+<% world_pay_form_tag(123456, @order.id, @order.total, @options) do %>
+	<%= submit_tag 'Pay with Worldpay' %>
+<% end %>
 
 # these parameters are handled as follows:
 
