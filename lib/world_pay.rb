@@ -79,7 +79,7 @@ module WorldPay
       WorldPay.uri
     end
     
-    #generate html output for 
+    #generate html output for form tag
     def world_pay_form_tag(installation_id, cart_id, amount, options = {}, &block)
       
       params = {
@@ -91,19 +91,17 @@ module WorldPay
       }.merge(options)
       
       params.merge!({ :testMode => 100 }) if WorldPay.test?
-      
-      output = form_tag(uri) do
+            
+      form_tag(uri) do
+        hidden_fields = []
         params.each_pair do |name, value|
-          hidden_field_tag(name, value)
+          hidden_fields << hidden_field_tag(name, value)
         end
-        capture(&block)
+        hidden_fields.join("\n") + capture(&block)
       end
       
-      logger.debug "** #{output}"
-      
-      concat output, block.binding
-      
-    end  
+    end
+    
   end
   
 end
