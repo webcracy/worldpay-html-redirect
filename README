@@ -7,6 +7,12 @@ This plugin helps in creating the HTML form for submitting payment information t
 
 When in development mode payments are submitted to the test page (and the testMode=100 POST parameter is added to the form). In production mode, requests are sent to the live payment page
 
+TODO
+====
+
+* Custom notification URL
+* FuturePay Support
+
 Example
 =======
 
