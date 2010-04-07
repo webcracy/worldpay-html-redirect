@@ -2,7 +2,7 @@ module WorldPay
   
   # set the submission uri to sandbox for development and live for production
   def self.uri
-    WorldPay.in_production? ? "https://select.worldpay.com/wcc/purchase/" : "https://select-test.worldpay.com/wcc/purchase/"
+    WorldPay.in_production? ? "https://secure.wp3.rbsworldpay.com/wcc/purchase" : "https://select-test.wp3.rbsworldpay.com/wcc/purchase"
   end
 
   def self.test?
